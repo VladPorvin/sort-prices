@@ -18,4 +18,3 @@ function filterPrice(minCurrentPrice, maxCurrentPrice) {
     );
   });
 }
-export default filterPrice;
