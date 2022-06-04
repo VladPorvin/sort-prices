@@ -1,16 +1,23 @@
-let courses = [
-  { name: 'Courses in England', prices: [0, 100] },
-  { name: 'Courses in Germany', prices: [500, null] },
-  { name: 'Courses in Italy', prices: [100, 200] },
-  { name: 'Courses in Russia', prices: [null, 400] },
-  { name: 'Courses in China', prices: [50, 250] },
-  { name: 'Courses in USA', prices: [200, null] },
-  { name: 'Courses in Kazakhstan', prices: [56, 324] },
-  { name: 'Courses in France', prices: [null, null] },
-];
-let newArr = [];
-const sortBtn = document.querySelector('.sort__button');
-const sortPriceBtn = document.querySelector('.sort-price__button');
+// Пример использования функции. Дополнительное задание
+
+let newArr, courses;
+const url = '/scripts/database.json',
+  sortBtn = document.querySelector('.sort__button'),
+  sortPriceBtn = document.querySelector('.sort-price__button');
+
+// Имитация получения данных с сервера
+const getCourses = async (coursesURL) => {
+  try {
+    const response = await fetch(coursesURL);
+    const courses = await response.json();
+    return courses;
+  } catch (err) {
+    alert(`Error >>`, err);
+  }
+};
+getCourses(url).then((data) => {
+  courses = data;
+});
 
 // Функция для проверки на пустоту, что эквивалентно САМОМУ минимальному/максимальному
 function normalize(someNum, flag) {
@@ -31,21 +38,25 @@ function listIn(arr) {
     `;
   });
 }
-// Сортируем цены по диапазону при нажатии на кнопку
+// Фильтр-функция
+function filterPrice(minCurrentPrice, maxCurrentPrice) {
+  const minPriceUsers = normalize(minCurrentPrice, 'min');
+  const maxPriceUsers = normalize(maxCurrentPrice, 'max');
+  newArr = courses.filter((el) => {
+    let minCoursePrice = normalize(el.prices[0], 'min');
+    let maxCoursePrice = normalize(el.prices[1], 'max');
+    return !(
+      (minPriceUsers < minCoursePrice && maxPriceUsers < minCoursePrice) ||
+      (minPriceUsers > maxCoursePrice && maxPriceUsers > maxCoursePrice)
+    );
+  });
+}
+
+// Сортируем цены по диапазону при нажатии на кнопку (дополнительное задание)
 sortBtn.addEventListener('click', () => {
   const minValue = document.querySelector('.min').value;
   const maxValue = document.querySelector('.max').value;
-  const minInput = normalize(minValue, 'min');
-  const maxInput = normalize(maxValue, 'max');
-  //   Проверка на вхождение диапазона из данного объекта в интервал введеных
-  newArr = courses.filter((el) => {
-    let minCurrentPrice = normalize(el.prices[0], 'min');
-    let maxCurrentPrice = normalize(el.prices[1], 'max');
-    return !(
-      (minInput < minCurrentPrice && maxInput < minCurrentPrice) ||
-      (minInput > maxCurrentPrice && maxInput > maxCurrentPrice)
-    );
-  });
+  filterPrice(minValue, maxValue);
   listIn(newArr);
 });
 //   Сортировка по минимальной цене
